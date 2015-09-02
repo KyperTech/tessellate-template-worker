@@ -1,0 +1,33 @@
+{
+  "name": "tessellate-template-worker",
+  "version": "0.0.1",
+  "description": "",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/kypertech/tessellate-template-worker"
+  },
+  "keywords": [
+    "AWS",
+    "SQS",
+    "tessellate",
+    "kyper",
+    "worker",
+    "nodejs"
+  ],
+  "author": "Prescott Prue",
+  "license": "ISC",
+  "bugs": {
+    "url": "http://github.com/kypertech/tessellate-template-worker/issues"
+  },
+  "homepage": "http://tessellate.kyper.io",
+  "dependencies": {
+    "aws-sdk": "^2.1.39",
+    "lodash": "^3.10.1",
+    "q": "^1.4.1",
+    "rimraf": "^2.4.2",
+    "s3": "^4.4.0"
+  }
+}
