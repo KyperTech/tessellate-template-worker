@@ -4,7 +4,9 @@ import s3Util from './s3Util';
 import config from './config';
 import Firebase from 'firebase';
 import { Clone } from 'nodegit';
-import { childStructureFromArray } from './utils';
+import { convertFromLocal } from './utils';
+import rimraf from 'rimraf';
+
 let log = (entry) => {
   fs.appendFileSync('/tmp/sample-app.log', new Date().toISOString() + ' - ' + entry + '\n');
 };
@@ -60,7 +62,7 @@ export default class WorkerTask {
     return new Promise((resolve, reject) => {
       rimraf(this.localDir, {}, (err) => {
         if (!err) {
-          console.log('Template copied from firebase to project. Response:', JSON.stringify(templateSnap.val()));
+          console.log('Template copied from firebase to project.');
           resolve();
         } else {
           console.log('Error deleting local dir:', JSON.stringify(err));
@@ -95,10 +97,13 @@ export default class WorkerTask {
     });
   }
   convertLocalDir() {
-    return utils.convertFromLocal(this.localDir);
+    console.log('convert local dir called');
+    return convertFromLocal(this.localDir);
   }
   convertAndRemoveLocal() {
+    console.log('convertAndRemoveLocal called');
     return this.convertLocalDir().then((local) => {
+      console.log('converted successfully', local);
       return this.deleteLocalDir().then(() => {
         return local;
       }, (err) => {
@@ -112,10 +117,11 @@ export default class WorkerTask {
   }
   //Copy to project's files list (on Firebase)
   addToProject(filesData) {
+    console.log('add to project called');
     return new Promise((resolve, reject) => {
       applicationsFbRef.child(this.toName).update(filesData, (err) => {
         if (!err) {
-          console.log('Template copied from firebase to project. Response:', JSON.stringify(templateSnap.val()));
+          console.log('Template copied from firebase to project:', JSON.stringify(filesData));
           resolve();
         } else {
           console.error('Error copying to firebase: ', JSON.stringify(err));
@@ -126,6 +132,7 @@ export default class WorkerTask {
   }
   //Copy template from firebase
   copyFbTemplate() {
+    console.log('copy fb template called');
     return new Promise((resolve, reject) => {
       templatesFbRef.child(this.fromName).once('value', (templateSnap) => {
         if (templateSnap && typeof templateSnap.val() === 'function') {

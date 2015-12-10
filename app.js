@@ -2,7 +2,6 @@ var port = process.env.PORT || 3000,
   http = require('http'),
   fs = require('fs'),
   WorkerTask = require('./lib/index').default;
-console.log('workertask', typeof WorkerTask, WorkerTask);
 var log = function(entry) {
   fs.appendFileSync('/tmp/sample-app.log', new Date().toISOString() + ' - ' + entry + '\n');
 };
@@ -17,7 +16,6 @@ var server = http.createServer(function (req, res) {
 
     req.on('end', function() {
       if (req.url === '/message') {
-        console.log('message request recieved');
         var task = new WorkerTask(body);
         //Split message into seperate chuncks
         task.run().then(function() {
@@ -34,7 +32,6 @@ var server = http.createServer(function (req, res) {
         res.end();
       } else {
         //Otherwise respond 200 (Not message or task)
-        console.log('not a post');
         res.writeHead(200, 'OK', {'Content-Type': 'text/plain'});
         res.status(200);
         res.end();
@@ -42,7 +39,6 @@ var server = http.createServer(function (req, res) {
     });
   } else {
     //Otherwise respond 200 (Health Checks)
-    console.log('not a post');
     res.writeHead(200,'OK', {'Content-Type': 'text/plain'});
     res.status(200);
     res.end();
