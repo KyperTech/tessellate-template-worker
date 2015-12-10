@@ -21,36 +21,40 @@ export default class WorkerTask {
     this.toType = messageArray[3] || 'firebase';
     let now = new Date().getTime();
     this.localDir = `${config.tempDir}/${this.toName}-${now}`;
+    console.log('worker task built', this);
   }
   run() {
-      switch(this.fromType) {
-        case 'firebase':
-          switch(this.toType) {
-            case 'firebase':
-              //From Firebase to Firebase
-              return this.copyFbTemplate();
-            default:
-              console.error('invalid destination type');
-          }
-        case 'git' :
-          switch(this.toType) {
-            case 'firebase':
-              //Clone from git and write to project
-              return this.addRepoToProject();
-            default:
-              console.error('invalid destination type');
-          }
-        case 's3':
-          switch(this.toType) {
-            case 's3':
-              return this.copyS3ToS3();
-            default:
-              console.error('invalid destination type');
-          }
-        default :
-          return this.copyFbTemplate();
-      }
-
+    switch(this.fromType) {
+      case 'firebase':
+        switch(this.toType) {
+          case 'firebase':
+            //From Firebase to Firebase
+            return this.copyFbTemplate();
+          default:
+            console.error('invalid destination type');
+            return Promise.reject();
+        }
+      case 'git' :
+        switch(this.toType) {
+          case 'firebase':
+            console.log('add repo to project');
+            //Clone from git and write to project
+            return this.addRepoToProject();
+          default:
+            console.error('invalid destination type');
+            return Promise.reject();
+        }
+      case 's3':
+        switch(this.toType) {
+          case 's3':
+            return this.copyS3ToS3();
+          default:
+            console.error('invalid destination type');
+            return Promise.reject();
+        }
+      default :
+        return this.copyFbTemplate();
+    }
   }
   deleteLocalDir() {
     return new Promise((resolve, reject) => {
@@ -67,7 +71,7 @@ export default class WorkerTask {
   }
   //Copy git repo
   addRepoToProject() {
-    return this.cloneAndConvertRepo().then((template) => {
+    return this.cloneAndConvertRepo(this.fromName).then((template) => {
       console.log('Repo cloned and coverted successfully:', template);
       return this.addToProject(template).then(() => {
         console.log('Repo successfully added to project');
@@ -80,9 +84,14 @@ export default class WorkerTask {
     });
   }
   cloneAndConvertRepo(url) {
+    console.log('clone and convert repo called', url);
     return Clone.clone(url, this.localDir, null).then((repo) => {
       //TODO: Convert folder into standard format
+      console.log('repo cloned successfully');
       return this.convertAndRemoveLocal();
+    }, (err) => {
+      console.error('error cloning repo', err);
+      return Promise.reject(err);
     });
   }
   convertLocalDir() {
