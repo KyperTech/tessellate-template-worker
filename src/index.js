@@ -3,11 +3,10 @@ import s3 from 's3';
 import s3Util from './s3Util';
 import config from './config';
 import Firebase from 'firebase';
-
+import { Clone } from 'nodegit';
 let log = (entry) => {
   fs.appendFileSync('/tmp/sample-app.log', new Date().toISOString() + ' - ' + entry + '\n');
 };
-let templatesBucket = config.templatesBucket;
 let tessellateRef = new Firebase(config.fbUrl);
 let templatesFbRef = tessellateRef.child('templates');
 let applicationsFbRef = tessellateRef.child('files');
@@ -39,12 +38,15 @@ export default class WorkerTask {
                 });
               });
           }
+          break;
+        case 'git' :
+
         break;
         case 's3':
           switch(this.toType) {
             default:
               //Copy from one S3 bucket to another
-              let fromBucket = {name:templatesBucket, prefix:this.fromName};
+              let fromBucket = {name:config.templatesBucket, prefix:this.fromName};
               s3Util.copyBucketToBucket(fromBucket, {name:this.toName}).then((response) => {
                 log('Template copied from one s3 bucket to another. Response:', JSON.stringify(response));
                 resolve(response);
@@ -57,5 +59,11 @@ export default class WorkerTask {
       }
     });
 
+  }
+  cloneAndConvertRepo(url) {
+    return Clone.clone(url, config.tempDir, null).then((repo) => {
+      //TODO: Convert folder into standard format
+      
+    });
   }
 }
