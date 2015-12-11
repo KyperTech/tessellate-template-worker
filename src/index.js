@@ -43,8 +43,8 @@ export default class WorkerTask {
             //Clone from git and write to project
             return this.addRepoToProject();
           default:
-            console.error('invalid destination type');
-            return Promise.reject();
+            return this.addRepoToProject();
+
         }
       case 's3':
         switch(this.toType) {
