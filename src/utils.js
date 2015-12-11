@@ -90,7 +90,8 @@ function buildFilesObj(filesArray) {
   let filesObj = {};
   filesArray.forEach((file, i) => {
     //Append files to an object under unique ids
-    let id = new Date().getTime() + i;
+    //TODO: Create this ref from Grout instead
+    let id = file.meta.path.replace(/[.]/g, ':').replace(/[#$\[\]]/g, '--');
     filesObj[id] = file;
   });
   return filesObj;
