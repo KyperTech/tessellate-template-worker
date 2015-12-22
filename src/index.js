@@ -87,7 +87,16 @@ export default class WorkerTask {
   }
   cloneAndConvertRepo(url) {
     console.log('clone and convert repo called', url);
-    return Clone.clone(url, this.localDir, null).then((repo) => {
+    const opts = {
+      remoteCallbacks: {
+        certificateCheck: function() {
+          // github will fail cert check on some machines
+          // this overrides that check
+          return 1;
+        }
+      }
+    };
+    return Clone.clone(url, this.localDir, opts).then((repo) => {
       //TODO: Convert folder into standard format
       console.log('repo cloned successfully');
       return this.convertAndRemoveLocal();
